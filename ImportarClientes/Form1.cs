@@ -41,7 +41,7 @@ namespace ImportarClientes
                             Telefono = fields[3],
                         };
 
-                        GuardarCliente(cliente);
+                        GuardarClienteSP(cliente);
                     };
                 }
                 MessageBox.Show("Clientes importados correctamente");
@@ -68,6 +68,42 @@ namespace ImportarClientes
                     using (SqlCommand cmd = new SqlCommand(query, con))
                     {
                         cmd.CommandType = CommandType.Text;
+
+
+                        cmd.Parameters.AddWithValue("@Nombre", cliente.Nombre);
+                        cmd.Parameters.AddWithValue("@Apellidos", cliente.Apellido);
+                        cmd.Parameters.AddWithValue("@Correo", cliente.Email);
+                        cmd.Parameters.AddWithValue("@Telefono", cliente.Telefono);
+
+                        con.Open();
+                        int registrosAfectados = cmd.ExecuteNonQuery();
+
+                        if (registrosAfectados == 0)
+                        {
+                            throw new Exception("No se pudo agregar cliente");
+                        }
+
+                    }
+                }
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+        private void GuardarClienteSP(Cliente cliente)
+        {
+            try
+            {
+                string query = "spClientesAgregar";
+
+                string connectionString = "Server=localhost;Database=ClientesDB;User ID=sa;Password=123456789;TrustServerCertificate=True;";
+                using (SqlConnection con = new SqlConnection(connectionString))
+                {
+                    using (SqlCommand cmd = new SqlCommand(query, con))
+                    {
+                        cmd.CommandType = CommandType.StoredProcedure;
 
 
                         cmd.Parameters.AddWithValue("@Nombre", cliente.Nombre);
